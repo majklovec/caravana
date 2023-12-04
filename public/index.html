@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebCaravana</title>
+    <script src="https://unpkg.com/htmx.org@1.9.9"
+        integrity="sha384-QFjmbokDn2DjBjq+fM+8LUIVrAgqcNW2s0PjAxHETgRn9l4fvX31ZxDxvwQnyMOX"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+    <div class="max-w-md p-8 bg-white rounded-md shadow-md">
+        <h1 class="text-2xl font-semibold mb-6">Deploy</h1>
+
+        <form id="myForm" class="space-y-4">
+            <div class="flex flex-col">
+                <label for="templates" class="mb-1 text-sm font-medium text-gray-600">Template:</label>
+                <select name="template" id="templates" hx-get="/templates" hx-trigger="load"
+                    class="w-full p-2 border rounded-md">
+                    <option>loading ...</option>
+                </select>
+            </div>
+
+            <div class="flex flex-col">
+                <label for="deployHost" class="mb-1 text-sm font-medium text-gray-600">Domain:</label>
+                <input type="text" id="deployHost" name="deployHost" required class="w-full p-2 border rounded-md">
+            </div>
+
+            <button type="button" onclick="submitForm()"
+                class="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300">
+                Submit
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function submitForm() {
+            // Send the data as JSON using fetch
+            fetch('http://localhost:8080/deploy', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    "TEMPLATE": document.getElementById("templates").value.trim(),
+                    "DOMAIN": document.getElementById("deployHost").value.trim()
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Handle the response if needed
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,8 @@
+TEMPLATE: majkl/traefik
+DOMAIN: traefik.example.com
+
+NOMAD_DASHBOARD: nomad.example.com
+NOMAD_TOKEN: 08b7vd3c-5330-17c8-7b79-c8dff60e52bb
+EMAIL: info@example.com
+TRAEFIK_DASHBOARD_USER: admin
+TRAEFIK_DASHBOARD_PASSWORD: $aps1$RG64bwAB$CJ5dtIVzy5EXfWDmq0XSA.

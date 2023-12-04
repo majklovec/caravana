@@ -1,0 +1,4 @@
+EMAIL: info@example.com
+NOMAD_DASHBOARD: nomad.example.com
+TRAEFIK_DASHBOARD_USER: admin
+TRAEFIK_DASHBOARD_PASSWORD: $bpr1$Rk64bwFM$CJ5dtIVzy5EXfWDmq0XSA.
