@@ -1,0 +1,38 @@
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release-linux-amd64:
+    name: Release Matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [arm64, amd64]
+        exclude:
+          # windows/arm64 and darwin/arm64 seems useless
+          - goarch: "arm64"
+            goos: windows
+          - goarch: "arm64"
+            goos: darwin
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set APP_VERSION env
+        run: echo "APP_VERSION=$(date +'%Y.%m.%d')-$(git rev-parse --short HEAD)" >> ${GITHUB_ENV}
+
+      - name: Environment Printer
+        uses: managedkaos/print-env@v1.0
+
+      - uses: wangyoucao577/go-release-action@v1.16
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          project_path: "${{ env.CMD_PATH }}"
+          build_flags: -v
+          ldflags: -X "caravana/cmd.version=${{ env.APP_VERSION }}"

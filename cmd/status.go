@@ -1,14 +1,38 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/hashicorp/nomad/api"
+	"github.com/ryanuber/columnize"
 	"github.com/spf13/cobra"
 )
+
+func formatJobInfo(job *api.Job) string {
+	// Format the job info
+	info := []string{
+		fmt.Sprintf("ID: | %s", *job.ID),
+		fmt.Sprintf("Name: | %s", *job.Name),
+		fmt.Sprintf("Datacenters: | %s", strings.Join(job.Datacenters, ",")),
+		fmt.Sprintf("Namespace: | %s", *job.Namespace),
+		fmt.Sprintf("STATUS: | %s", *job.Status),
+	}
+
+	return columnize.SimpleFormat(info)
+}
+
+func getJobInfo(jobID string) error {
+	q := &api.QueryOptions{}
+	job, _, err := client.Jobs().Info(jobID, q)
+	if err != nil {
+		return fmt.Errorf("error querying job: %s", err)
+	}
+
+	fmt.Println(formatJobInfo(job))
+
+	return nil
+}
 
 // statusCmd represents the status command
 var statusCmd = &cobra.Command{
@@ -21,20 +45,13 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("status called")
+		err := getJobInfo(args[0])
+		if err != nil {
+			fmt.Printf("Error: %s\n", err)
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(statusCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// statusCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// statusCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

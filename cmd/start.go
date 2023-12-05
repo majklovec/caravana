@@ -1,92 +1,170 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
-	"github.com/spf13/cobra"
-
-	"github.com/hashicorp/levant/helper"
 	"github.com/hashicorp/levant/levant"
 	"github.com/hashicorp/levant/levant/structs"
+	"github.com/hashicorp/levant/logging"
+
 	"github.com/hashicorp/levant/template"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
+
+var Dry bool = false
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
-	Use:   "start",
-	Short: "A Golang CLI app to run Levant templates",
+	Use:   "start [config]",
+	Short: "Start service",
+	Args:  cobra.RangeArgs(0, 1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := runLevantTemplate(); err != nil {
+		var configFile string
+		if len(args) > 0 {
+			configFile = args[0]
+		}
+
+		// viper.AutomaticEnv()
+
+		// zerolog.SetGlobalLevel(zerolog.NoLevel)
+		logging.SetupLogger("debug", "human")
+
+		if err := processConfig(configFile); err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
 	},
 }
 
-func getEnvOrDefault(key, defaultValue string) string {
-	value, exists := os.LookupEnv(key)
-	if !exists {
-		return defaultValue
-	}
-	return value
+func init() {
+	startCmd.Flags().BoolVarP(&Dry, "dry", "", false, "Do not touch the cluster, only simulate")
+	rootCmd.AddCommand(startCmd)
 }
-func runLevantTemplate() error {
+
+func processConfig(configFile string) error {
+
+	v := make(map[string]interface{})
+	globalConfig, err := loadConfig("config.yaml")
+	if err == nil {
+		for key, val := range globalConfig {
+			v[key] = val
+		}
+	}
+
+	var template string
+
+	config, err := loadConfig(filepath.Join(configDir, configFile) + ".yaml")
+	if err == nil {
+		if _, ok := config["TEMPLATE"]; ok {
+			template = config["TEMPLATE"].(string)
+		}
+	}
+
+	if viper.GetString("TEMPLATE") != "" {
+		template = viper.GetString("TEMPLATE")
+	}
+	if viper.GetString("DOMAIN") != "" {
+
+		configFile = viper.GetString("DOMAIN")
+	}
+	if template == "" {
+		return fmt.Errorf("template %s does not exists", filepath.Join(configDir, configFile)+".yaml")
+	}
+
+	templateConfig, err := loadConfig(filepath.Join(templatesDir, template, "config.yaml"))
+	if err == nil {
+		mergeConfigs(v, templateConfig)
+	}
+
+	mergeConfigs(v, config)
+
+	checkIfDirectoryExists := directoryExists(filepath.Join(templatesDir, template))
+	if !checkIfDirectoryExists {
+		return fmt.Errorf("service template %s does not exists", filepath.Join(templatesDir, template))
+	}
+
+	filepath.Walk(filepath.Join(templatesDir, template), func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() && filepath.Ext(path) == ".nomad" {
+			if err := processTemplate(configFile, path, v); err != nil {
+				fmt.Printf("Error processing %s: %v\n", path, err)
+			}
+		}
+
+		return nil
+	})
+
+	return nil
+}
+
+func processTemplate(configFilePath string, templateFilePath string, templateConfig map[string]interface{}) error {
 	config := &levant.DeployConfig{
 		Client:   &structs.ClientConfig{},
 		Deploy:   &structs.DeployConfig{},
 		Plan:     &structs.PlanConfig{},
 		Template: &structs.TemplateConfig{},
 	}
+	config.Template.TemplateFile = templateFilePath
 
-	// Customize Levant config based on your needs
-	config.Client.Addr = getEnvOrDefault("NOMAD_ADDR", "http://localhost:4646")
+	variables := make(map[string]interface{})
+	variables["SERVICE_ID"] = sanitizeServiceID(configFilePath, '-')
+	variables["DOMAIN"] = configFilePath
 
-	// Set other Levant options as needed
+	envs := viper.AllSettings()
 
-	if templateFile != "" {
-		config.Template.TemplateFile = templateFile
-	} else {
-		if config.Template.TemplateFile = helper.GetDefaultTmplFile(); config.Template.TemplateFile == "" {
-			return fmt.Errorf("template_file missing and no default template found")
-		}
-	}
-	v := make(map[string]interface{})
-	v["SERVICE_ID"] = "gitea"
-	var err error // Add this line to declare the 'err' variable
-	config.Template.Job, err = template.RenderJob(config.Template.TemplateFile, config.Template.VariableFiles, config.Client.ConsulAddr, &v)
+	mergeConfigs(variables, templateConfig, envs)
+
+	// parse levant template
+	var err error
+	config.Template.Job, err = template.RenderJob(config.Template.TemplateFile, config.Template.VariableFiles, config.Client.ConsulAddr, &variables)
 	if err != nil {
 		return fmt.Errorf("error rendering Levant template: %v", err)
 	}
 
-	// Customize the Levant job as needed
-	// for _, taskGroup := range config.Template.Job.TaskGroups {
-	// 	for _, task := range taskGroup.Tasks {
-	// 		// Customize task settings based on your requirements
-	// 	}
-	// }
+	// output levant template
+	if Dry {
+		tpl, err := template.RenderTemplate(config.Template.TemplateFile, config.Template.VariableFiles, config.Client.ConsulAddr, &variables)
+		if err != nil {
+			fmt.Printf("[ERROR] levant/command: %v", err)
+			return fmt.Errorf("error rendering Levant template: %v", err)
+		}
+		if *config.Template.Job.Name != configFilePath {
+			return fmt.Errorf("job has to be named using 'job \"[[.DOMAIN]]\"' name should be %s not: %s", configFilePath, *config.Template.Job.Name)
+		}
+		fmt.Println(tpl)
+		return nil
+	}
 
-	// Trigger deployment using Levant
-	success := levant.TriggerDeployment(config, nil)
+	// ensure that host dirs exists for binding
+	for _, taskGroup := range config.Template.Job.TaskGroups {
+		for _, task := range taskGroup.Tasks {
+			if _, ok := task.Config["mount"]; ok {
+				mounts := task.Config["mount"].([]map[string]interface{})
+				for _, mount := range mounts {
+					if _, ok := mount["source"]; ok {
+						ensureDirectoryExists(mount["source"].(string), *config)
+					}
+				}
+			}
+		}
+	}
+
+	// mark jobs by metadata to find em later
+	config.Template.Job.Meta = make(map[string]string)
+	config.Template.Job.Meta["CARAVANA_TEMPLATE"] = templateFilePath
+	config.Template.Job.Meta["CARAVANA_CONFIG"] = configFilePath
+
+	success := levant.TriggerDeployment(config, client)
 	if !success {
 		return fmt.Errorf("unable to complete deployment")
 	}
 
-	fmt.Println("Deployment successful!")
+	fmt.Println("Deployment successful for Nomad file:", templateFilePath)
 	return nil
-}
-
-// Flags
-var templateFile string
-
-func init() {
-
-	// Add Levant-related flags (customize based on your needs)
-	startCmd.PersistentFlags().StringVar(&templateFile, "template-file", "", "Path to Levant template file")
-	startCmd.PersistentFlags().Int("canary_auto_promote", 0, "Canary auto promote")
-
-	rootCmd.AddCommand(startCmd)
 }
