@@ -12,7 +12,7 @@ require (
 	github.com/hashicorp/nomad/api v0.0.0-20230913164725-73e372ad9403
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/cobra v1.8.0
-	github.com/spf13/viper v1.18.0
+	github.com/spf13/viper v1.18.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 
