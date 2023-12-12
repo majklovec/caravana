@@ -7,7 +7,7 @@ require (
 	github.com/fatih/color v1.15.0
 	github.com/fynelabs/selfupdate v0.2.0
 	github.com/gin-gonic/gin v1.9.1
-	github.com/go-git/go-git/v5 v5.10.1
+	github.com/go-git/go-git/v5 v5.11.0
 	github.com/hashicorp/levant v0.3.3
 	github.com/hashicorp/nomad/api v0.0.0-20230913164725-73e372ad9403
 	github.com/ryanuber/columnize v2.1.2+incompatible
