@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
-	github.com/fatih/color v1.15.0
+	github.com/fatih/color v1.16.0
 	github.com/fynelabs/selfupdate v0.2.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-git/go-git/v5 v5.10.1
@@ -76,7 +76,7 @@ require (
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
