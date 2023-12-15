@@ -113,7 +113,7 @@ func extractRepoName(gitURL string) string {
 	return strings.TrimPrefix(repoName, "caravana-")
 }
 
-func getLatestVersion(repo string) (string, error) {
+func getLatestVersion(repo string) string {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
 
 	// create a request with basic-auth
@@ -144,5 +144,5 @@ func getLatestVersion(repo string) (string, error) {
 
 	version := result["tag_name"].(string)
 
-	return version, err
+	return version
 }

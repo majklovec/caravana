@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/fatih/color"
 	"github.com/fynelabs/selfupdate"
@@ -47,9 +46,9 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		repo := "majklovec/caravana"
-		latest_version, _ := getLatestVersion(repo)
-		a := semver.Compare(strings.TrimPrefix(latest_version, "v"), strings.TrimPrefix(version, "v"))
-		fmt.Printf("latest version: %s\r\nactual version: %s\r\n", strings.TrimPrefix(latest_version, "v"), version)
+		latest_version := getLatestVersion(repo)
+		a := semver.Compare(latest_version, "v"+version)
+		fmt.Printf("latest version: %s\r\nactual version: v%s\r\n", latest_version, version)
 
 		if a == 1 {
 			updateUrl := fmt.Sprintf("https://github.com/%s/releases/download/%s/caravana-%s-%s", repo, latest_version, getEnvOrDefault("GOOS", "linux"), getEnvOrDefault("GOARCH", "amd64"))
