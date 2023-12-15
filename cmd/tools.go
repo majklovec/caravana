@@ -1,7 +1,11 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
+	"log"
+	"net/http"
 	"os"
 	"strings"
 
@@ -107,4 +111,38 @@ func extractRepoName(gitURL string) string {
 	repoWithGitSuffix := parts[len(parts)-1]
 	repoName := strings.TrimSuffix(repoWithGitSuffix, ".git")
 	return strings.TrimPrefix(repoName, "caravana-")
+}
+
+func getLatestVersion(repo string) (string, error) {
+	url := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
+
+	// create a request with basic-auth
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Add("User-Agent", "metal3d-go-client")
+	req.Header.Add("Accept", "application/vnd.github.v3.text-match+json")
+	req.Header.Add("Accept", "application/vnd.github.moondragon+json")
+
+	// call github
+	client := http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Fatal("Error while making request", err)
+	}
+
+	// status in <200 or >299
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		log.Fatalf("Error: %d %s", resp.StatusCode, resp.Status)
+	}
+
+	bodyText, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal("Error reading response", err)
+	}
+	result := make(map[string]interface{})
+	json.Unmarshal(bodyText, &result)
+
+	version := result["tag_name"].(string)
+
+	return version, err
 }
