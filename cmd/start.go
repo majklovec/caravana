@@ -70,6 +70,17 @@ func processConfig(configFile string) error {
 
 		configFile = viper.GetString("DOMAIN")
 	}
+
+	if err != nil {
+		configPath := filepath.Join(configDir, configFile) + ".yaml"
+		deploymentConfig := deployment{
+			TEMPLATE: template,
+			DOMAIN:   configFile,
+		}
+
+		saveConfig(configPath, deploymentConfig)
+	}
+
 	if template == "" {
 		return fmt.Errorf("template %s does not exists", filepath.Join(configDir, configFile)+".yaml")
 	}
