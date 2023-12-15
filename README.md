@@ -16,6 +16,14 @@ from https://github.com/majklovec/caravana/releases
 
  `mkdir configs`
 
+ Example config:
+ 
+
+```yaml
+ DOMAIN=git.domain.com
+ TEMPLATE=test/gitea
+ ```
+
 ### Add sample repository:
 
  `caravana repo add https://github.com/majklovec/caravana-amd64`
