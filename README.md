@@ -25,7 +25,11 @@ from https://github.com/majklovec/caravana/releases
 ### Create config files:
 
 * cd configs
-* add config files named <domain>.yaml
+* add config files named `<domain>.yaml`
+
+### Auto update
+
+ `sudo caravana update`
 
 ## Repositories
 
