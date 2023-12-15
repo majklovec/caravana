@@ -10,7 +10,7 @@ This is proof of concept, could be subject to change.
 
 from https://github.com/majklovec/caravana/releases
 
- `sudo cp caravana* /usr/loca/bin/caravana`
+ `sudo cp caravana* /usr/local/bin/caravana`
 
  `sudo chmod +x /usr/local/bin/caravana`
 
