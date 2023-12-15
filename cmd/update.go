@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/fynelabs/selfupdate"
@@ -47,13 +48,14 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		repo := "majklovec/caravana"
 		latest_version, _ := getLatestVersion(repo)
-		fmt.Printf("latest version: %s\r\nactual version: v%s\r\n", latest_version, version)
+		a := semver.Compare(strings.TrimPrefix(latest_version, "v"), strings.TrimPrefix(version, "v"))
+		fmt.Printf("latest version: %s\r\nactual version: %s\r\n", strings.TrimPrefix(latest_version, "v"), version)
 
-		a := semver.Compare(latest_version, version)
 		if a == 1 {
-			err := doUpdate(fmt.Sprintf("https://github.com/%s/releases/download/%s/caravana-%s-%s", repo, latest_version, getEnvOrDefault("GOOS", "linux"), getEnvOrDefault("GOARCH", "amd64")))
+			updateUrl := fmt.Sprintf("https://github.com/%s/releases/download/%s/caravana-%s-%s", repo, latest_version, getEnvOrDefault("GOOS", "linux"), getEnvOrDefault("GOARCH", "amd64"))
+			err := doUpdate(updateUrl)
 			if err != nil {
-				color.Red("Failed to update: %v\r\n", err)
+				color.Red("Failed to update: %s  %v\r\n", updateUrl, err)
 			}
 		}
 	},
