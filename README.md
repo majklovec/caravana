@@ -66,6 +66,7 @@ There needs to be `config/git.domain.com.yaml` with defined `SERVICE` , that has
 ## API
 
 * `caravana api`
+
 Will create http server on port 8080, and will listen for HTTP POST to `/deploy`
 
 Payload is in JSON format: `{"DOMAIN":"xxxx.domain.com", "TEMPLATE":"majkl/gitea"}`
