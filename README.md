@@ -2,8 +2,6 @@
 
 Deploy to Nomad using templates
 
-This is proof of concept, could be subject to change.
-
 ## Quick start
 
 ### Download caravana 
