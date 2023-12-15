@@ -2,6 +2,21 @@
 
 Deploy to Nomad using templates
 
+## How does it work
+
+There is directory config, where you can add your config files inyaml format. Each config represents one deploy (identified by it's domain).
+There can be global config.yaml right where you are running caravana from.
+Each template can have its default config.yaml.
+
+When you run `caravana start git.exanple.com`
+
+* global config will be read `./config.yaml`
+* TEMPLATE from `configs/git.exanple.com.yaml` will be read
+* and then `templates/<TEMPLATE>/config.yaml` will be read
+* and `configs/git.exanple.com.yaml` will be read
+
+Merged config will be passed as variables for Levant, that will deploy all `templates/<TEMPLATE>/*.nomad files`
+
 ## Quick start
 
 ### Download caravana 
@@ -16,14 +31,6 @@ from https://github.com/majklovec/caravana/releases
 
  `mkdir configs`
 
- Example config:
- 
-
-```yaml
- DOMAIN=git.domain.com
- TEMPLATE=test/gitea
- ```
-
 ### Add sample repository:
 
  `caravana repo add https://github.com/majklovec/caravana-amd64`
@@ -34,6 +41,14 @@ from https://github.com/majklovec/caravana/releases
 
 * cd configs
 * add config files named `<domain>.yaml`
+
+ Example config:
+ 
+
+```yaml
+ DOMAIN=git.domain.com
+ TEMPLATE=test/gitea
+ ```
 
 ### Auto update
 
