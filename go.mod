@@ -10,9 +10,11 @@ require (
 	github.com/go-git/go-git/v5 v5.11.0
 	github.com/hashicorp/levant v0.3.3
 	github.com/hashicorp/nomad/api v0.0.0-20230913164725-73e372ad9403
+	github.com/jsiebens/hashi-up v0.16.0
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/cobra v1.8.0
-	github.com/spf13/viper v1.18.1
+	github.com/spf13/viper v1.18.2
+	golang.org/x/mod v0.14.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -74,7 +76,6 @@ require (
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
-	github.com/jsiebens/hashi-up v0.16.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
@@ -118,7 +119,6 @@ require (
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/oauth2 v0.15.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
