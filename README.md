@@ -45,11 +45,10 @@ DATACENTERS:
   - dc1
 ```
 #### local configs:
-* cd configs
-* add config files named `<domain>.yaml`
+* add config files:
 
- Example config:
- 
+Example config:
+- configs/git.yaml 
 ```yaml
  DOMAIN=git.domain.com
  TEMPLATE=test/gitea
