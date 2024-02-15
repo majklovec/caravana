@@ -38,13 +38,17 @@ from https://github.com/majklovec/caravana/releases
  `caravana repo ls`
 
 ### Create config files:
-
+#### main config:
+```yaml
+DATACENTERS:
+  - dc1
+```
+#### local configs:
 * cd configs
 * add config files named `<domain>.yaml`
 
  Example config:
  
-
 ```yaml
  DOMAIN=git.domain.com
  TEMPLATE=test/gitea
