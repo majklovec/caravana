@@ -76,7 +76,7 @@ Name of the repo will not include `caravana-` if present. So repo above will end
 
 * `caravana start git.domain.com`
 
-There needs to be `config/git.domain.com.yaml` with defined `SERVICE` , that has to be present in `services/<SERVICE>`
+There needs to be `configs/git.domain.com.yaml` with defined `SERVICE` , that has to be present in `services/<SERVICE>`
 
 * `TEMPLATE=majkl/gitea DOMAIN=test caravana start`
 
