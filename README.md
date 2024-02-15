@@ -39,6 +39,7 @@ from https://github.com/majklovec/caravana/releases
 
 ### Create config files:
 #### main config:
+config.yaml
 ```yaml
 DATACENTERS:
   - dc1
